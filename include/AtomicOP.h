@@ -401,16 +401,6 @@ public:
     void  forward() {
         int count = batch.size();
         //#pragma omp parallel for
-        n3ldg_cuda::Profiler &profiler = n3ldg_cuda::Profiler::Ins();
-        profiler.BeginEvent("Sigmoid no-batch backward");
-        for (int idx = 0; idx < count; idx++) {
-            batch[idx]->backward_drop();
-            batch[idx]->backward();
-        }
-        profiler.EndEvent();
-
-        profiler.BeginEvent("Sigmoid batch backward");
-
         sumDim = 0;
         for (int idx = 0; idx < count; idx++) {
             sumDim += batch[idx]->dim;
@@ -439,7 +429,6 @@ public:
             offset += ptr->dim;
             ptr->forward_drop(bTrain, drop_factor);
         }
-        profiler.EndEvent();
     }
 #endif
 
@@ -477,16 +466,6 @@ public:
     void backward() {
         int count = batch.size();
         //#pragma omp parallel for
-        n3ldg_cuda::Profiler &profiler = n3ldg_cuda::Profiler::Ins();
-        profiler.BeginEvent("Sigmoid no-batch backward");
-        for (int idx = 0; idx < count; idx++) {
-            batch[idx]->backward_drop();
-            batch[idx]->backward();
-        }
-        profiler.EndEvent();
-
-        profiler.BeginEvent("Sigmoid batch backward");
-
         Tensor1D lx, ly;
         lx.init(sumDim);
         ly.init(sumDim);
@@ -511,8 +490,6 @@ public:
             }
             offset += ptr->dim;
         }
-        profiler.EndEvent();
-
     }
 #endif
 };
